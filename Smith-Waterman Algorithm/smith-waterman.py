@@ -2,7 +2,6 @@ import sys
 import itertools
 import numpy as np
 
-# TODO: Verificar que funciona com seq2 > seq1 e com dados com varios local alignments.
 # TODO: Tratar de resultados de tempo
 
 # Function to load the scoring model matrix
@@ -59,7 +58,9 @@ def createScoringMatrix(a, b, scoreModel, gapPenalty):
         if (bestVal == upperGapVal):
             prevCells[i, j] = 2 # Cell score was generated from an upper gap    
         if (bestVal == lowerGapVal):
-            prevCells[i, j] = 3 # Cell score was generated from a left gap
+            prevCells[i, j] = 3 # Cell score was generated from a left gap   
+        if (bestVal == 0):
+            prevCells[i, j] = 0 # Cell score was negative, cell will have a 0 val
     
         # Assign the score to the current cell
         myMatrix[i, j] = bestVal
