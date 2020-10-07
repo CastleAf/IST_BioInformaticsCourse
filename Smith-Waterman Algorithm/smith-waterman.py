@@ -1,13 +1,17 @@
+# Bioinformatics / Computational Biology Course. 1st Semester 2020/2021.
+# Usage: python3 smith-waterman.py
+
 import sys
 import itertools
 import numpy as np
+import time
 
-# TODO: Tratar de resultados de tempo
 
 # Function to load the scoring model matrix
 def createMatrix(file):
     txtContents = open(file).read()
     return [item.split() for item in txtContents.split('\n')[:-1]]
+
 
 # Get Blossom50 values
 def findScore(upperLetter, leftLetter, scoreModel):
@@ -26,6 +30,7 @@ def findScore(upperLetter, leftLetter, scoreModel):
 
     return int(scoreModel[rowIndex][columnIndex])
 
+
 # Creates the alignment matrix with scores
 def createScoringMatrix(a, b, scoreModel, gapPenalty):
 
@@ -38,10 +43,9 @@ def createScoringMatrix(a, b, scoreModel, gapPenalty):
     myMatrix = np.zeros((numRows, numColumns), dtype = int)
 
     # prevCells[i][j] will track from which direction was the score at i,j generated
-    # 1 = diagonal
-    # 2 = up
-    # 3 = left
-    # 0 = placeholder
+    # Values:
+    # 1 = diagonal, 2 = up 
+    # 3 = left, 4 = placeholder/other values were negative
     prevCells = np.zeros((numRows, numColumns), dtype = int)
 
     for i, j in itertools.product(range(1, numRows), range(1, numColumns)):
@@ -58,17 +62,16 @@ def createScoringMatrix(a, b, scoreModel, gapPenalty):
         if (bestVal == upperGapVal):
             prevCells[i, j] = 2 # Cell score was generated from an upper gap    
         if (bestVal == lowerGapVal):
-            prevCells[i, j] = 3 # Cell score was generated from a left gap   
+            prevCells[i, j] = 3 # Cell score was generated from a left gap    
         if (bestVal == 0):
             prevCells[i, j] = 0 # Cell score was negative, cell will have a 0 val
     
         # Assign the score to the current cell
         myMatrix[i, j] = bestVal
 
-
+        # Keep track of the best aligns
         if ((bestVal != 0) and (bestVal == bestAlignVal)):
             bestAlignsIndex.append([i, j])
-
         if (bestVal > bestAlignVal):
             bestAlignVal = bestVal
             bestAlignsIndex.clear() # Clears older best aligns indexes
@@ -116,11 +119,10 @@ def calcAligns(bestAlignsIndex, alignmentMatrix, prevCellsMatrix, seqOne, seqTwo
         topAlignments.append(top)
         botAlignments.append(bot)
 
-
     return topAlignments, botAlignments
 
 
-# Main Function
+# Main Program:
 def main():
 
     # Receive user input. Upper method makes the string uppercase.
@@ -128,10 +130,14 @@ def main():
     seqTwo = str(input("Second Amino Acid Sequence: ")).upper()
     gapPenalty = int(input("Gap Penalty Value: "))
 
-    # Define Score Model, in this case we use the BLOSUM 50 score model
+    # Define Score Model, in this case we use the BLOSUM 50 score model.
     myScoreModel = createMatrix('blosum50.txt')
 
-    # Creating the alignment matrix with scores, saves the matrix, the previous cells matrix, the best aligns index and their score
+    # Saves timestamp to calculate the program's execution time
+    start_time = time.time()
+
+    # Creating the alignment matrix with scores, saves the matrix,
+    # the previous cells matrix, the best aligns index and their score
     bestAlignScore, alignsIndex, alignmentMatrix, prevCellsMatrix = createScoringMatrix(seqOne, seqTwo, myScoreModel, gapPenalty)
 
     print()
@@ -141,6 +147,7 @@ def main():
 
     topAlignments, botAlignments = calcAligns(alignsIndex, alignmentMatrix, prevCellsMatrix, seqOne, seqTwo)
 
+    # Printing the results:
     nOptimalAligns = len(topAlignments)
 
     if (nOptimalAligns == 1):
@@ -157,6 +164,11 @@ def main():
             print("Alignment number " + str(n + 1) + ":")
             print(''.join(reversed(topAlignments[n])))
             print(''.join(reversed(botAlignments[n])))
+    
+
+    print()
+    end_time = time.time()
+    print("This program took " + str(end_time - start_time) + " seconds to execute.")
 
 
 # Runs main program if this module isn't being imported
