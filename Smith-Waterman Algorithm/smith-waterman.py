@@ -194,6 +194,10 @@ def main():
     # Ideally a negative value
     gapPenalty = int(input("Gap Penalty Value: "))
 
+    if (gapPenalty == 0):
+        print("Please input a valid gap penalty value, a negative number is recommended.")
+        return
+
     # Define Score Model, in this case we use the BLOSUM 50 score model.
     myScoreModel = createMatrix('blosum50.txt')
 
