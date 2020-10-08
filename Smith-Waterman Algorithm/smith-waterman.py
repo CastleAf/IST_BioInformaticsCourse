@@ -62,7 +62,11 @@ def createScoringMatrix(a, b, scoreModel, gapPenalty):
         if (bestVal == upperGapVal):
             prevCells[i, j] = 2 # Cell score was generated from an upper gap    
         if (bestVal == lowerGapVal):
-            prevCells[i, j] = 3 # Cell score was generated from a left gap    
+            prevCells[i, j] = 3 # Cell score was generated from a left gap
+
+        if (bestVal == scoreModelVal and bestVal == lowerGapVal):
+            prevCells[i, j] = 4 # Cell score can be generated from a left gap or a diagonal value    
+
         if (bestVal == 0):
             prevCells[i, j] = 0 # Cell score was negative, cell will have a 0 val
     
@@ -79,8 +83,45 @@ def createScoringMatrix(a, b, scoreModel, gapPenalty):
 
     return bestAlignVal, bestAlignsIndex, myMatrix, prevCells
 
+def calcPaths(nextStep, a, b, row, column, prevCellsMat):
 
-def calcAligns(bestAlignsIndex, alignmentMatrix, prevCellsMatrix, seqOne, seqTwo):
+    top = []
+    bot = []
+    secundaryPath = []
+
+    while(nextStep):
+
+        if (nextStep == 1):
+            top.append(a[column - 1])
+            bot.append(b[row - 1])
+            row -= 1
+            column -= 1
+
+        if (nextStep == 2):
+            top.append('-')
+            bot.append(b[row - 1])
+            row -= 1
+
+        if (nextStep == 3):
+            top.append(a[column - 1])
+            bot.append('-')
+            column -= 1
+
+        if (nextStep == 4):
+            secundaryPath.append([row, column])
+            prevCellsMat[row, column] = 3 # will do left next
+
+            top.append(a[column - 1])
+            bot.append(b[row - 1])
+            row -= 1
+            column -= 1
+        
+        nextStep = prevCellsMat[row, column]
+    
+    return top, bot, secundaryPath
+    
+
+def calcAligns(bestAlignsIndex, prevCellsMatrix, seqOne, seqTwo):
 
     # Lists to save the upper and lower alignments
     topAlignments = []
@@ -88,36 +129,30 @@ def calcAligns(bestAlignsIndex, alignmentMatrix, prevCellsMatrix, seqOne, seqTwo
 
     for indexes in bestAlignsIndex:
 
-        top = []
-        bot = []
-
         row = indexes[0]
         column = indexes[1]
         next_step = prevCellsMatrix[row, column]
 
-        # Loop will stop next_step == 0
-        while (next_step):
-            
-            if (next_step == 1):
-                top.append(seqOne[column - 1])
-                bot.append(seqTwo[row - 1])
-                row -= 1
-                column -= 1
-
-            if (next_step == 2):
-                top.append('-')
-                bot.append(seqTwo[row - 1])
-                row -= 1
-
-            if (next_step == 3):
-                top.append(seqOne[column - 1])
-                bot.append('-')
-                column -= 1
-
-            next_step = prevCellsMatrix[row, column]
+        top, bot, secundaryPaths = calcPaths(next_step, seqOne, seqTwo, row, column, prevCellsMatrix)
 
         topAlignments.append(top)
         botAlignments.append(bot)
+
+        #  WEXIWEW
+        #  PWEWWEW
+        #  -8
+
+        for secIndex in secundaryPaths:
+            
+            print(secIndex[0])
+            print(secIndex[1])
+            print(secIndex)
+
+            top, bot, secundaryPaths = calcPaths(next_step, seqOne, seqTwo, row, column, prevCellsMatrix)
+
+        topAlignments.append(top)
+        botAlignments.append(bot)
+
 
     return topAlignments, botAlignments
 
@@ -128,6 +163,8 @@ def main():
     # Receive user input. Upper method makes the string uppercase.
     seqOne = str(input("First Amino Acid Sequence: ")).upper()
     seqTwo = str(input("Second Amino Acid Sequence: ")).upper()
+
+    # Ideally a negative value
     gapPenalty = int(input("Gap Penalty Value: "))
 
     # Define Score Model, in this case we use the BLOSUM 50 score model.
@@ -145,7 +182,7 @@ def main():
     print()
     print(alignmentMatrix)
 
-    topAlignments, botAlignments = calcAligns(alignsIndex, alignmentMatrix, prevCellsMatrix, seqOne, seqTwo)
+    topAlignments, botAlignments = calcAligns(alignsIndex, prevCellsMatrix, seqOne, seqTwo)
 
     # Printing the results:
     nOptimalAligns = len(topAlignments)
