@@ -64,8 +64,11 @@ def createScoringMatrix(a, b, scoreModel, gapPenalty):
         if (bestVal == lowerGapVal):
             prevCells[i, j] = 3 # Cell score was generated from a left gap
 
+        if (bestVal == scoreModelVal and bestVal == upperGapVal):
+            prevCells[i, j] = 4 # Cell score can be generated from a left gap or a diagonal value
         if (bestVal == scoreModelVal and bestVal == lowerGapVal):
-            prevCells[i, j] = 4 # Cell score can be generated from a left gap or a diagonal value    
+            prevCells[i, j] = 5 # Cell score can be generated from a left gap or a diagonal value        
+        
 
         if (bestVal == 0):
             prevCells[i, j] = 0 # Cell score was negative, cell will have a 0 val
@@ -109,6 +112,15 @@ def calcPaths(nextStep, a, b, row, column, prevCellsMat):
 
         if (nextStep == 4):
             secundaryPath.append([row, column])
+            prevCellsMat[row, column] = 2 # will do upper next
+
+            top.append(a[column - 1])
+            bot.append(b[row - 1])
+            row -= 1
+            column -= 1
+
+        if (nextStep == 5):
+            secundaryPath.append([row, column])
             prevCellsMat[row, column] = 3 # will do left next
 
             top.append(a[column - 1])
@@ -126,6 +138,9 @@ def calcAligns(bestAlignsIndex, prevCellsMatrix, seqOne, seqTwo):
     # Lists to save the upper and lower alignments
     topAlignments = []
     botAlignments = []
+    hasSecundary = False
+    originalMatrix = prevCellsMatrix.copy()
+    iteration = 0
 
     for indexes in bestAlignsIndex:
 
@@ -144,14 +159,19 @@ def calcAligns(bestAlignsIndex, prevCellsMatrix, seqOne, seqTwo):
 
         for secIndex in secundaryPaths:
             
-            print(secIndex[0])
-            print(secIndex[1])
-            print(secIndex)
+            # I will reset the prevCellsMatrix so that I can arrange all combinations
+            if (iteration):
+                prevCellsMatrix = originalMatrix
+          
+            while (secundaryPaths):
+                top, bot, secundaryPaths = calcPaths(next_step, seqOne, seqTwo, row, column, prevCellsMatrix)
+                
+                # Condition to reject duplicates
+                if (not (top in topAlignments and bot in botAlignments)):
+                    topAlignments.append(top)
+                    botAlignments.append(bot)
 
-            top, bot, secundaryPaths = calcPaths(next_step, seqOne, seqTwo, row, column, prevCellsMatrix)
-
-        topAlignments.append(top)
-        botAlignments.append(bot)
+            iteration += 1   
 
 
     return topAlignments, botAlignments
@@ -181,6 +201,7 @@ def main():
     print("Here's the alignment score matrix: ")
     print()
     print(alignmentMatrix)
+    print(prevCellsMatrix)
 
     topAlignments, botAlignments = calcAligns(alignsIndex, prevCellsMatrix, seqOne, seqTwo)
 
