@@ -43,9 +43,6 @@ def createScoringMatrix(a, b, scoreModel, gapPenalty):
     myMatrix = np.zeros((numRows, numColumns), dtype = int)
 
     # prevCells[i][j] will track from which direction was the score at i,j generated
-    # Values:
-    # 1 = diagonal, 2 = up 
-    # 3 = left, 4 = placeholder/other values were negative
     prevCells = np.zeros((numRows, numColumns), dtype = int)
 
     for i, j in itertools.product(range(1, numRows), range(1, numColumns)):
@@ -62,13 +59,12 @@ def createScoringMatrix(a, b, scoreModel, gapPenalty):
         if (bestVal == upperGapVal):
             prevCells[i, j] = 2 # Cell score was generated from an upper gap    
         if (bestVal == lowerGapVal):
-            prevCells[i, j] = 3 # Cell score was generated from a left gap
+            prevCells[i, j] = 3 # Cell score was generated from a lower gap
 
         if (bestVal == scoreModelVal and bestVal == upperGapVal):
-            prevCells[i, j] = 4 # Cell score can be generated from a left gap or a diagonal value
+            prevCells[i, j] = 4 # Cell score can be generated from an upper gap or a diagonal value
         if (bestVal == scoreModelVal and bestVal == lowerGapVal):
-            prevCells[i, j] = 5 # Cell score can be generated from a left gap or a diagonal value        
-        
+            prevCells[i, j] = 5 # Cell score can be generated from a lower gap or a diagonal value 
 
         if (bestVal == 0):
             prevCells[i, j] = 0 # Cell score was negative, cell will have a 0 val
@@ -86,42 +82,54 @@ def createScoringMatrix(a, b, scoreModel, gapPenalty):
 
     return bestAlignVal, bestAlignsIndex, myMatrix, prevCells
 
+
+# Function to traceback the matrix and get an align
 def calcPaths(nextStep, a, b, row, column, prevCellsMat):
 
     top = []
     bot = []
-    secundaryPath = []
+    
+    # Flag to mark if there are secundary paths to handle
+    hasSecundaryPath = False
+
+    # Assign names to number values
+    DIAG, UP, BOT, DIAG_UP, DIAG_BOT = range(1, 6)
 
     while(nextStep):
 
-        if (nextStep == 1):
+        if (nextStep == DIAG): # Diagonal path
             top.append(a[column - 1])
             bot.append(b[row - 1])
             row -= 1
             column -= 1
 
-        if (nextStep == 2):
+        if (nextStep == UP): # Upper gap path
             top.append('-')
             bot.append(b[row - 1])
             row -= 1
 
-        if (nextStep == 3):
+        if (nextStep == BOT): # Lower gap path
             top.append(a[column - 1])
             bot.append('-')
             column -= 1
 
-        if (nextStep == 4):
-            secundaryPath.append([row, column])
-            prevCellsMat[row, column] = 2 # will do upper next
+        if (nextStep == DIAG_UP): # Diagonal and upper gap paths
 
+            # Will do the upper gap path next
+            hasSecundaryPath = True
+            prevCellsMat[row, column] = UP
+
+            # Diagonal path
             top.append(a[column - 1])
             bot.append(b[row - 1])
             row -= 1
             column -= 1
 
-        if (nextStep == 5):
-            secundaryPath.append([row, column])
-            prevCellsMat[row, column] = 3 # will do left next
+        if (nextStep == DIAG_BOT): # Diagonal and lower gap paths
+            
+            # Will do the lower gap path next
+            hasSecundaryPath = True
+            prevCellsMat[row, column] = BOT
 
             top.append(a[column - 1])
             bot.append(b[row - 1])
@@ -130,17 +138,20 @@ def calcPaths(nextStep, a, b, row, column, prevCellsMat):
         
         nextStep = prevCellsMat[row, column]
     
-    return top, bot, secundaryPath
+    return top, bot, hasSecundaryPath
     
 
+# Function to calculate all the best aligns
 def calcAligns(bestAlignsIndex, prevCellsMatrix, seqOne, seqTwo):
 
     # Lists to save the upper and lower alignments
     topAlignments = []
     botAlignments = []
-    hasSecundary = False
-    originalMatrix = prevCellsMatrix.copy()
-    iteration = 0
+
+    # Duplicates prevCellsMatrix to reset the matrix to the original
+    # values later, so we can find all path combinations
+    originalPrevMatrix = prevCellsMatrix.copy()
+    doReset = 0
 
     for indexes in bestAlignsIndex:
 
@@ -148,31 +159,27 @@ def calcAligns(bestAlignsIndex, prevCellsMatrix, seqOne, seqTwo):
         column = indexes[1]
         next_step = prevCellsMatrix[row, column]
 
-        top, bot, secundaryPaths = calcPaths(next_step, seqOne, seqTwo, row, column, prevCellsMatrix)
+        top, bot, hasSecundaryPath = calcPaths(next_step, seqOne, seqTwo, row, column, prevCellsMatrix)
 
+        # Append found alignments
         topAlignments.append(top)
         botAlignments.append(bot)
-
-        #  WEXIWEW
-        #  PWEWWEW
-        #  -8
-
-        for secIndex in secundaryPaths:
             
-            # I will reset the prevCellsMatrix so that I can arrange all combinations
-            if (iteration):
-                prevCellsMatrix = originalMatrix
-          
-            while (secundaryPaths):
-                top, bot, secundaryPaths = calcPaths(next_step, seqOne, seqTwo, row, column, prevCellsMatrix)
-                
-                # Condition to reject duplicates
-                if (not (top in topAlignments and bot in botAlignments)):
-                    topAlignments.append(top)
-                    botAlignments.append(bot)
+        # If at the second iteration, resets the prevCellsMatrix so it's possible to arrange all alignments combinations
+        if (doReset):
+            prevCellsMatrix = originalPrevMatrix
+        
+        while (hasSecundaryPath):
 
-            iteration += 1   
+            top, bot, hasSecundaryPath = calcPaths(next_step, seqOne, seqTwo, row, column, prevCellsMatrix)
+            
+            # Condition to reject duplicates
+            if (not (top in topAlignments and bot in botAlignments)):
+                topAlignments.append(top)
+                botAlignments.append(bot)
 
+        # Marks first iteration completed
+        doReset = 1
 
     return topAlignments, botAlignments
 
@@ -201,11 +208,10 @@ def main():
     print("Here's the alignment score matrix: ")
     print()
     print(alignmentMatrix)
-    print(prevCellsMatrix)
 
     topAlignments, botAlignments = calcAligns(alignsIndex, prevCellsMatrix, seqOne, seqTwo)
 
-    # Printing the results:
+    # Printing the results
     nOptimalAligns = len(topAlignments)
 
     if (nOptimalAligns == 1):
@@ -217,16 +223,17 @@ def main():
     if (nOptimalAligns > 1):
         print()
         print("Found " + str(len(topAlignments)) + " optimal alignments with score " + str(bestAlignScore) + ":")
+        print()
 
         for n in range(len(topAlignments)):
             print("Alignment number " + str(n + 1) + ":")
             print(''.join(reversed(topAlignments[n])))
             print(''.join(reversed(botAlignments[n])))
-    
+
 
     print()
     end_time = time.time()
-    print("This program took " + str(end_time - start_time) + " seconds to execute.")
+    print("This algorithm took " + str(end_time - start_time) + " seconds to execute.")
 
 
 # Runs main program if this module isn't being imported
