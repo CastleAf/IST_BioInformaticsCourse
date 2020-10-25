@@ -1,6 +1,7 @@
 # Smith-Waterman Algorithm
 
 **Afonso Castelão, ist190700, MEIC-A**
+
 Bioinformatics course's first lab delivery.
 
 I was assign to implement the Smith-Waterman algorithm so I could align two pairs of amino acid sequences. Algorithm is fully working with BLOSUM50 as the score matrix.
@@ -19,7 +20,9 @@ Second Amino Acid Sequence: PWEWWEW
 Gap Penalty Value: -8
 ```
 
-Here's a graphical representation of the results. Make sure you select the smith-waterman alignment type.
+Here's a graphical representation of the results
+(Make sure you select the smith-waterman alignment type):
 
 https://gtuckerkellogg.github.io/pairwise/demo/
+
 (This link's program is not mine)
