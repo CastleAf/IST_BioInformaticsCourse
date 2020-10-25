@@ -191,11 +191,11 @@ def main():
     seqOne = str(input("First Amino Acid Sequence: ")).upper()
     seqTwo = str(input("Second Amino Acid Sequence: ")).upper()
 
-    # Ideally a negative value
+    # Gap penalty must be a negative integer
     gapPenalty = int(input("Gap Penalty Value: "))
 
-    if (gapPenalty == 0):
-        print("Please input a valid gap penalty value, a negative number is recommended.")
+    if (gapPenalty >= 0):
+        print("Please input a valid gap penalty value. A gap penalty should be a negative integer.")
         return
 
     # Define Score Model, in this case we use the BLOSUM 50 score model.

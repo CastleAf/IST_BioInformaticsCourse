@@ -1,6 +1,25 @@
-# Smith-waterman Algorithm
-Work not finished yet, need to cover cases where prevCell comes from 2 ways (and not only from an upper gap, a diagonal score or a bottom gap) or even 3 ways (all of them at the same time). Need to fix it so I can find all the possible alignments.
+# Smith-Waterman Algorithm
 
-A good website to verify the results:
+**Afonso Castelão, ist190700, MEIC-A**
+Bioinformatics course's first lab delivery.
+
+I was assign to implement the Smith-Waterman algorithm so I could align two pairs of amino acid sequences. Algorithm is fully working with BLOSUM50 as the score matrix.
+
+#### How to run:
+```
+$ python3 smith-waterman.py
+```
+Simply run the command above and input two strings sequences and a negative integer.
+
+For example:
+```
+$ python3 smith-waterman.py
+First Amino Acid Sequence: WEXIWEW
+Second Amino Acid Sequence: PWEWWEW
+Gap Penalty Value: -8
+```
+
+Here's a graphical representation of the results. Make sure you select the smith-waterman alignment type.
+
 https://gtuckerkellogg.github.io/pairwise/demo/
-
+(This link's program is not mine)
