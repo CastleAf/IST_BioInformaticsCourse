@@ -7,36 +7,100 @@ import numpy as np
 # TODO: Explain in readMe the -inf values.
 # TODO: Explain in readMe that this algorithm is bruteforce coded
 # to a HMM Model, serves more as an example and not the main algorithm
-# (can't be applied to diferent HMM)
+# (can't be applied to diferent HMM). Explain also why we use the log formula
 
 # FIXME: Viterbi does not generate the optimal path, it generates the most likely
-# path for a certain input. Change vars names
+# path for a certain input. Verify var names and comments
 
-# Function that does a traceback on the viterbi matrix to find the optimal path 
+# FIXME: Get forward algorithm logarithmic formula
+
+# FIXME: Ask the professor if the algorithm should be adapted (use a flag on the original function)
+# or if we could just add a new function that will calc P(S). Also, should we ask for user input
+# or just always calc it anyways?
+
+
+def calcProbSequence(seq, transProb, emissProb):
+
+    j = 1
+    seqSize = len(seq)
+
+    myMatrix = np.zeros((4, seqSize + 1))
+    myMatrix[0, 0] = 1
+
+    while j < (seqSize + 1):
+
+        symbIndex = getSymb(seq, j - 1)
+
+        # On the first column, all transitions that don't come from state 0 are equal to 0
+        # Therefore, we will only take the value from transitions from state zero
+        if (j == 1):
+            
+            myMatrix[1, 1] = emissProb[1, symbIndex] * myMatrix[0, 0] * transProb[0, 1]
+            myMatrix[2, 1] = emissProb[2, symbIndex] * myMatrix[0, 0] * transProb[0, 2]
+            myMatrix[3, 1] = emissProb[3, symbIndex] * myMatrix[0, 0] * transProb[0, 3]
+            j += 1
+            continue
+        
+        for k in range(1, 4):
+
+            emissVal = emissProb[k, symbIndex]
+
+            # If this state can't emit this symbol, skips iteration to next state
+            if (emissVal == 0):
+                myMatrix[k, j] = 0
+                continue
+            
+            firstStateVal = myMatrix[1, j - 1] * transProb[1, k]
+            secondStateVal = myMatrix[2, j - 1] * transProb[2, k]        
+            thirdStateVal = myMatrix[3, j - 1] * transProb[3, k]
+
+            # Save value on respective cell
+            myMatrix[k, j] = emissVal * (firstStateVal + secondStateVal + thirdStateVal)
+
+        j += 1
+
+    # Sums the values of the last column
+    finalValue = myMatrix[:, -1].sum()
+
+    return finalValue
+
+
+# Function to transform a list of optimal states into a single string
+def statesToString(stateList):
+
+    statesString = '' 
+
+    for state in stateList:
+        statesString += str(state)
+
+    return statesString
+
+
+# Function that does a traceback on the viterbi matrix to find the most likely set of states 
 def doTraceback(matrix, prevCellsIndex):
 
-    optimalPath = []
+    mostLikelyStates = []
     columnNumber = len(matrix[0]) - 1
 
     # Firstly, we'll pick the state with the maximum value in the last column 
     lastStates = matrix[1:, columnNumber]
     bestValue = max(lastStates[0], lastStates[1], lastStates[2])
     bestIndex = getBestValIndex(bestValue, lastStates[0], lastStates[1], lastStates[2])
-    optimalPath.append(bestIndex)
+    mostLikelyStates.append(bestIndex)
 
     myState = bestIndex
 
-    # Tracebacks following prevCellsIndex to get the optimal path
+    # Tracebacks following prevCellsIndex to get the most likely states
     while columnNumber > 1:
 
         newState = int(prevCellsIndex[myState, columnNumber])
-        optimalPath.append(newState)
+        mostLikelyStates.append(newState)
         myState = newState
         columnNumber -= 1
 
     # Path is backwards, .reverse() method reverses it.
-    optimalPath.reverse()
-    return optimalPath
+    mostLikelyStates.reverse()
+    return mostLikelyStates
 
 
 # Function that returns the max value's index (+ 1) out of 3 values. 
@@ -143,16 +207,14 @@ def calcViterbiMatrix(seq, transProb, emissProb):
             bestVal = max(firstStateVal, secondStateVal, thirdStateVal)
 
             # Fill prevIndex.
-            # prevIndex[k, j] = 1: The similar cell in myMatrix was generated from state 1
-            # prevIndex[k, j] = 2: The similar cell in myMatrix was generated from state 2
-            # prevIndex[k, j] = 3: The similar cell in myMatrix was generated from state 3
+            # prevIndex[k, j] = 1 -> myMatrix[k, j] was generated from state 1
+            # prevIndex[k, j] = 2 -> myMatrix[k, j] was generated from state 2
+            # prevIndex[k, j] = 3 -> myMatrix[k, j] was generated from state 3
             prevIndex[k, j] = getBestValIndex(bestVal, firstStateVal, secondStateVal, thirdStateVal)
             myMatrix[k, j] = bestVal
 
         j += 1
 
-    print(myMatrix)
-    print(prevIndex)
     return myMatrix, prevIndex
 
 
@@ -179,11 +241,18 @@ def main():
     # prevCellsIndex -> Indexes from what line were the values were generated
     solvedMatrix, prevCellsIndex = calcViterbiMatrix(sequence, transProb, emissProb)
 
-    # Calculate optimal path doing a traceback on the viterbi matrix
-    optimalPath = doTraceback(solvedMatrix, prevCellsIndex)
+    # Calculate the most likely states doing a traceback on the viterbi matrix
+    mostLikelyStatesList = doTraceback(solvedMatrix, prevCellsIndex)
 
-    print(optimalPath)
+    # Converts to string
+    mostLikelyStates = statesToString(mostLikelyStatesList)
 
+    # Calculate the probability of the input sequence
+    probOfSequence = calcProbSequence(sequence, transProb, emissProb)
+
+    print()
+    print("The most likely sequence of states for the given input is " + mostLikelyStates + ".")
+    print("This sequence has a probability of " + str(probOfSequence) + ".")
 
 
 # Runs main program if this module isn't being imported
