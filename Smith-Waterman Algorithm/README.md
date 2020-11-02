@@ -20,9 +20,6 @@ Second Amino Acid Sequence: PWEWWEW
 Gap Penalty Value: -8
 ```
 
-Here's a graphical representation of the results
-(Make sure you select the smith-waterman alignment type):
+Here's a graphical representation of the results (this link's program is not mine. Also, make sure you select the smith-waterman alignment type):
 
 https://gtuckerkellogg.github.io/pairwise/demo/
-
-(This link's program is not mine)
