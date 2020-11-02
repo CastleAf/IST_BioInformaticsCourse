@@ -22,7 +22,7 @@ Gap Penalty Value: -8
 
 ---
 
-Below there's a link that does graphical representation of the algorithm. When using it, make sure you select Smith-Waterman Alignment Type (this link's program is not mine):
+Below there's a link that does graphical representation of the algorithm. When using it, make sure you select Smith-Waterman alignment type (this link's program is not mine):
 
 * https://gtuckerkellogg.github.io/pairwise/demo/
 
