@@ -19,8 +19,9 @@ I was assign to implement some Hidden Markov Models Algorithms so I could solve 
 ![HMM Emissions Image](https://github.com/CastleAf/IST_BioInformaticsCourse/blob/master/HMM_Algorithms/img/HMM_Emissions.svg?raw=true)
 
 
-**To Note:** 0 will always be the initial state. Also be aware that 0 won't emit any observation.
-I used this Hidden Markov Model for all the functions. This program isn't really that useful because it only works for this given HMM. Therefore, this code isn't reusable, it only works as an example of how the algorithms work.
+0 will always be the initial state. Also be aware that 0 won't emit any observation.
+
+**To Note:** I used this Hidden Markov Model for all the functions. This program isn't really that useful because it only works for this given HMM. Therefore, this code isn't reusable, it only works as an example of how the algorithms work.
 
 ---
 
