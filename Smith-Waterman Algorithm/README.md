@@ -22,4 +22,4 @@ Gap Penalty Value: -8
 
 Below there's a link that does graphical representation of the algorithm. When using it, make sure you select smith-waterman alignment type (this link's program is not mine):
 
-https://gtuckerkellogg.github.io/pairwise/demo/ (don't forget to select smith-waterman alignment type)
+https://gtuckerkellogg.github.io/pairwise/demo/
