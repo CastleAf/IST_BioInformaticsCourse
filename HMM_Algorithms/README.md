@@ -8,7 +8,7 @@ I was assign to implement some Hidden Markov Models Algorithms so I could solve 
 
 ---
 
-#### Here's the model I've worked with in this program:
+### Here's the model I've worked with in this program:
 
 **State Transition Probabilities:**
 
