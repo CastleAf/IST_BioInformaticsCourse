@@ -4,7 +4,7 @@
 
 Bioinformatics course's second lab delivery.
 
-I was assign to implement some Hidden Markov Models Algorithms so I could solve some presented problems. For this report, I coded three algorithms: Viterbi Algorithm, Forward Algorithm and Backward Algorithm. Finally, I used the Posterior Probability formula to solve the posterior decoding exercise.
+I was assign to implement some Hidden Markov Models Algorithms so I could solve some presented problems. For this report, I coded three algorithms: **Viterbi Algorithm, Forward Algorithm and Backward Algorithm**. Finally, I used the Posterior Probability formula to solve the posterior decoding exercise.
 
 #### Here's the model I've worked with in this program:
 [TODO: insert Model]
