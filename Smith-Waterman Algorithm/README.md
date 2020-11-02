@@ -23,7 +23,7 @@ Gap Penalty Value: -8
 ---
 
 #### Here's a graphical representation of the example above:
-![Smith-Waterman alignment Example](https://github.com/CastleAf/IST_BioInformaticsCourse/blob/master/Smith-Waterman/img/Example_Alignment.png?raw=true)
+![Smith-Waterman alignment Example](https://github.com/CastleAf/IST_BioInformaticsCourse/blob/master/Smith-Waterman%20Algorithm/img/Example_Alignment.png?raw=true)
 
 Below there's a link that does graphical representation of the algorithm. When using it, make sure you select Smith-Waterman alignment type (this link's program is not mine):
 
