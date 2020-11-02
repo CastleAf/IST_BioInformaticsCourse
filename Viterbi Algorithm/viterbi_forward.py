@@ -9,14 +9,7 @@ import numpy as np
 # to a HMM Model, serves more as an example and not the main algorithm
 # (can't be applied to diferent HMM). Explain also why we use the log formula
 
-# FIXME: Viterbi does not generate the optimal path, it generates the most likely
-# path for a certain input. Verify var names and comments
-
-# FIXME: Get forward algorithm logarithmic formula
-
-# FIXME: Ask the professor if the algorithm should be adapted (use a flag on the original function)
-# or if we could just add a new function that will calc P(S). Also, should we ask for user input
-# or just always calc it anyways?
+# FIXME: generates the most likely path for a certain input. Verify var names and comments.
 
 
 def calcProbSequence(seq, transProb, emissProb):
